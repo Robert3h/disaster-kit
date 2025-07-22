@@ -146,6 +146,37 @@
             margin-top: 3rem;
             color: #6b7280;
         }
+        .item-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            width: 100%; /* Ensure controls take full width */
+            justify-content: space-between; /* Space out checkbox and quantity */
+        }
+        .item-controls input[type="checkbox"] {
+            transform: scale(1.2); /* Slightly larger checkbox */
+            cursor: pointer;
+        }
+        .item-controls input[type="number"] {
+            width: 4rem; /* Fixed width for quantity input */
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.375rem;
+            border: 1px solid #d1d5db;
+            text-align: center;
+            -moz-appearance: textfield; /* Hide arrows in Firefox */
+        }
+        /* Hide arrows in Chrome, Safari, Edge */
+        .item-controls input[type="number"]::-webkit-outer-spin-button,
+        .item-controls input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .item-card.checked {
+            opacity: 0.7; /* Dim checked items */
+            background-color: #f0fdf4; /* Light green for checked items */
+            border-color: #86efac; /* Green border for checked items */
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -159,6 +190,17 @@
                 台灣正處於平行時空的分歧點。就像一部多重宇宙電影，現在的一念選擇，將開啟未來截然不同的世界線。
             </p>
         </header>
+
+        <!-- Progress Summary Section -->
+        <section class="card mb-8 p-6 bg-blue-50 border-l-4 border-blue-400">
+            <h2 class="text-2xl font-semibold text-blue-800 mb-4">我的防災包進度</h2>
+            <p class="text-lg text-blue-700">
+                您已勾選 <span id="checkedItemsCount" class="font-bold text-3xl">0</span> 個品項，總計 <span id="totalItemsCount" class="font-bold text-3xl">0</span> 個。
+            </p>
+            <p class="text-sm text-blue-600 mt-2">
+                繼續努力，讓您的家庭更安全！
+            </p>
+        </section>
 
         <!-- Introduction Section -->
         <section class="card">
@@ -203,199 +245,8 @@
             </ul>
 
             <h3 class="subsection-title">詳細品項與預估金額 (參考)</h3>
-            <div class="item-list">
-                <!-- Items parsed from the image and categorized -->
-                <!-- Other Category -->
-                <div class="item-card no-link category-other">
-                    <div class="flex justify-between w-full items-center">
-                        <strong class="text-gray-900">黑熊學院 避難防災用品</strong>
-                        <span class="text-red-500 font-semibold">-14,530</span>
-                    </div>
-                    <div class="tooltip-details">提供防災知識與實用課程</div>
-                </div>
-                <div class="item-card no-link category-other">
-                    <div class="flex justify-between w-full items-center">
-                        <strong class="text-gray-900">晴讀_京品源避難防災用品</strong>
-                        <span class="text-red-500 font-semibold">-5,589</span>
-                    </div>
-                    <div class="tooltip-details">綜合性防災用品供應商</div>
-                </div>
-                <a href="https://example.com/smoke-hood" target="_blank" class="item-card has-link category-other">
-                    <div class="flex justify-between w-full items-center">
-                        <strong class="text-gray-900">蝦皮_防煙頭罩 x3</strong>
-                        <span class="text-red-500 font-semibold">-1,100</span>
-                    </div>
-                    <div class="tooltip-details">火災逃生用，保護呼吸道</div>
-                </a>
-                <div class="item-card no-link category-other">
-                    <div class="flex justify-between w-full items-center">
-                        <strong class="text-gray-900">蝦皮_簡易廁所50次</strong>
-                        <span class="text-red-500 font-semibold">-975</span>
-                    </div>
-                    <div class="tooltip-details">應急衛生用品，方便處理排泄物</div>
-                </div>
-                <div class="item-card no-link category-other">
-                    <div class="flex justify-between w-full items-center">
-                        <strong class="text-gray-900">蝦皮_ADISI防水雨披+睡袋</strong>
-                        <span class="text-red-500 font-semibold">-1,380</span>
-                    </div>
-                    <div class="tooltip-details">應急保暖與防水，輕便易攜</div>
-                </div>
-                <div class="item-card no-link category-other">
-                    <div class="flex justify-between w-full items-center">
-                        <strong class="text-gray-900">蝦皮_簡易尿袋*2</strong>
-                        <span class="text-red-500 font-semibold">-157</span>
-                    </div>
-                    <div class="tooltip-details">應急衛生用品，方便使用</div>
-                </div>
-                <div class="item-card no-link category-other">
-                    <div class="flex justify-between w-full items-center">
-                        <strong class="text-gray-900">京品源_加購防災用品+運費120</strong>
-                        <span class="text-red-500 font-semibold">-1,760</span>
-                    </div>
-                    <div class="tooltip-details">防災用品補充與運費</div>
-                </div>
-                <a href="https://example.com/titanium-cutlery" target="_blank" class="item-card has-link category-other">
-                    <div class="flex justify-between w-full items-center">
-                        <strong class="text-gray-900">蝦皮_鈦金屬筷子(560)+叉匙(465)-折扣(263)</strong>
-                        <span class="text-red-500 font-semibold">-762</span>
-                    </div>
-                    <div class="tooltip-details">輕量耐用，戶外用餐工具</div>
-                </a>
-                <a href="https://example.com/walkie-talkie" target="_blank" class="item-card has-link category-other">
-                    <div class="flex justify-between w-full items-center">
-                        <strong class="text-gray-900">蝦皮_ADi AV-03免執照對講機2隻一組</strong>
-                        <span class="text-red-500 font-semibold">-2,514</span>
-                    </div>
-                    <div class="tooltip-details">緊急通訊設備，免執照使用</div>
-                </a>
-
-                <!-- Water Category -->
-                <a href="https://example.com/mochigoo-water-bag" target="_blank" class="item-card has-link category-water">
-                    <div class="flex justify-between w-full items-center">
-                        <strong class="text-gray-900">蝦皮_MochiGoo防水水壺8L x8個</strong>
-                        <span class="text-red-500 font-semibold">-1,172</span>
-                    </div>
-                    <div class="tooltip-details">大容量儲水，輕便可折疊</div>
-                </a>
-                <a href="https://example.com/water-filter-kit" target="_blank" class="item-card has-link category-water">
-                    <div class="flex justify-between w-full items-center">
-                        <strong class="text-gray-900">蝦皮_防災濾水罐 x2+生存口嚼片(24顆裝) x2</strong>
-                        <span class="text-red-500 font-semibold">-2,361</span>
-                    </div>
-                    <div class="tooltip-details">淨化水源，提供緊急能量</div>
-                </a>
-                <div class="item-card no-link category-water">
-                    <div class="flex justify-between w-full items-center">
-                        <strong class="text-gray-900">P&G防災濾水粉 x2份</strong>
-                        <span class="text-red-500 font-semibold">-1,528</span>
-                    </div>
-                    <div class="tooltip-details">快速淨化飲用水</div>
-                </div>
-                <a href="https://example.com/lifestraw-810" target="_blank" class="item-card has-link category-water">
-                    <div class="flex justify-between w-full items-center">
-                        <strong class="text-gray-900">蝦皮_生命吸管(810) x3隻</strong>
-                        <span class="text-red-500 font-semibold">-2,430</span>
-                    </div>
-                    <div class="tooltip-details">個人濾水器，直接飲用安全水</div>
-                </a>
-                <div class="item-card no-link category-water">
-                    <div class="flex justify-between w-full items-center">
-                        <strong class="text-gray-900">蝦皮_KATADYN過濾孢囊(30顆裝) x2</strong>
-                        <span class="text-red-500 font-semibold">-1,275</span>
-                    </div>
-                    <div class="tooltip-details">高效濾水片，適用於野外水源</div>
-                </div>
-                <div class="item-card no-link category-water">
-                    <div class="flex justify-between w-full items-center">
-                        <strong class="text-gray-900">蝦皮_WaterBOB浴缸儲水袋*1</strong>
-                        <span class="text-red-500 font-semibold">-2,200</span>
-                    </div>
-                    <div class="tooltip-details">大容量應急儲水袋，利用浴缸空間</div>
-                </div>
-                <div class="item-card no-link category-water">
-                    <div class="flex justify-between w-full items-center">
-                        <strong class="text-gray-900">蝦皮_LifeStrawPeak生命吸管*1</strong>
-                        <span class="text-red-500 font-semibold">-1,200</span>
-                    </div>
-                    <div class="tooltip-details">高效個人濾水器，輕巧便攜</div>
-                </div>
-
-                <!-- Medical Category -->
-                <div class="item-card no-link category-medical">
-                    <div class="flex justify-between w-full items-center">
-                        <strong class="text-gray-900">藥局_抗生素軟膏</strong>
-                        <span class="text-red-500 font-semibold">-180</span>
-                    </div>
-                    <div class="tooltip-details">外傷感染預防與治療</div>
-                </div>
-                <div class="item-card no-link category-medical">
-                    <div class="flex justify-between w-full items-center">
-                        <strong class="text-gray-900">杏一_藥品一批</strong>
-                        <span class="text-red-500 font-semibold">-883</span>
-                    </div>
-                    <div class="tooltip-details">常用藥品與急救用品組合</div>
-                </div>
-                <div class="item-card no-link category-medical">
-                    <div class="flex justify-between w-full items-center">
-                        <strong class="text-gray-900">美泰德_藥品一批</strong>
-                        <span class="text-red-500 font-semibold">-497</span>
-                    </div>
-                    <div class="tooltip-details">常用藥品與急救用品組合</div>
-                </div>
-
-                <!-- Food Category -->
-                <a href="https://example.com/pow-r1-16" target="_blank" class="item-card has-link category-food">
-                    <div class="flex justify-between w-full items-center">
-                        <strong class="text-gray-900">蝦皮_POW-R1能量磚(250g) x16份</strong>
-                        <span class="text-red-500 font-semibold">-4,480</span>
-                    </div>
-                    <div class="tooltip-details">高能量壓縮餅乾，提供持久飽足感</div>
-                </a>
-                <div class="item-card no-link category-food">
-                    <div class="flex justify-between w-full items-center">
-                        <strong class="text-gray-900">蝦皮_POW-R1能量磚(250g) x4份</strong>
-                        <span class="text-red-500 font-semibold">-1,120</span>
-                    </div>
-                    <div class="tooltip-details">高能量壓縮餅乾，提供持久飽足感</div>
-                </div>
-                <div class="item-card no-link category-food">
-                    <div class="flex justify-between w-full items-center">
-                        <strong class="text-gray-900">蝦皮_生存口嚼片(24顆裝) x2</strong>
-                        <span class="text-red-500 font-semibold">-1,122</span>
-                    </div>
-                    <div class="tooltip-details">緊急能量補充，快速提供熱量</div>
-                </div>
-                <div class="item-card no-link category-food">
-                    <div class="flex justify-between w-full items-center">
-                        <strong class="text-gray-900">蝦皮_NRG-5戰備口糧*1</strong>
-                        <span class="text-red-500 font-semibold">-890</span>
-                    </div>
-                    <div class="tooltip-details">長期儲存口糧，營養均衡</div>
-                </div>
-
-                <!-- Fuel/Energy Category -->
-                <a href="https://example.com/batteries" target="_blank" class="item-card has-link category-fuel">
-                    <div class="flex justify-between w-full items-center">
-                        <strong class="text-gray-900">蝦皮_電池</strong>
-                        <span class="text-red-500 font-semibold">-807</span>
-                    </div>
-                    <div class="tooltip-details">應急電源，多種尺寸備用</div>
-                </a>
-                <a href="https://example.com/campmaid-fuel" target="_blank" class="item-card has-link category-fuel">
-                    <div class="flex justify-between w-full items-center">
-                        <strong class="text-gray-900">蝦皮_CampMaid固體燃料塊(12顆裝) x5 +鈦合金湯匙</strong>
-                        <span class="text-red-500 font-semibold">-744</span>
-                    </div>
-                    <div class="tooltip-details">輕便燃料，用於加熱食物或水</div>
-                </a>
-                <a href="https://example.com/tactical-flashlight" target="_blank" class="item-card has-link category-fuel">
-                    <div class="flex justify-between w-full items-center">
-                        <strong class="text-gray-900">蝦皮_戰術電弧點火手電筒*2</strong>
-                        <span class="text-red-500 font-semibold">-1,580</span>
-                    </div>
-                    <div class="tooltip-details">多功能點火與照明工具</div>
-                </a>
+            <div id="disaster-kit-items-container" class="item-list">
+                <!-- Items will be dynamically generated here by JavaScript -->
             </div>
             <p class="mt-6 text-center text-gray-600 italic">
                 ※ 推薦購買來源將在後續整理更完整後附上。
@@ -442,5 +293,167 @@
             <p>#DisasterPreparedness #DefenseAwareness #FirstPrinciples #FamilyResponsibility #SpreadSheetWars</p>
         </footer>
     </div>
+
+    <script>
+        // Define the disaster kit items data
+        // 為了方便管理和互動，將品項資料定義為 JavaScript 物件陣列
+        const disasterKitItems = [
+            // Other Category
+            { id: 'item-01', name: '黑熊學院 避難防災用品', price: 14530, category: 'other', details: '提供防災知識與實用課程', link: '' },
+            { id: 'item-02', name: '晴讀_京品源避難防災用品', price: 5589, category: 'other', details: '綜合性防災用品供應商', link: '' },
+            { id: 'item-03', name: '蝦皮_防煙頭罩 x3', price: 1100, category: 'other', details: '火災逃生用，保護呼吸道', link: 'https://example.com/smoke-hood' },
+            { id: 'item-04', name: '蝦皮_簡易廁所50次', price: 975, category: 'other', details: '應急衛生用品，方便處理排泄物', link: '' },
+            { id: 'item-05', name: '蝦皮_ADISI防水雨披+睡袋', price: 1380, category: 'other', details: '應急保暖與防水，輕便易攜', link: '' },
+            { id: 'item-06', name: '蝦皮_簡易尿袋*2', price: 157, category: 'other', details: '應急衛生用品，方便使用', link: '' },
+            { id: 'item-07', name: '京品源_加購防災用品+運費120', price: 1760, category: 'other', details: '防災用品補充與運費', link: '' },
+            { id: 'item-08', name: '蝦皮_鈦金屬筷子(560)+叉匙(465)-折扣(263)', price: 762, category: 'other', details: '輕量耐用，戶外用餐工具', link: 'https://example.com/titanium-cutlery' },
+            { id: 'item-09', name: '蝦皮_ADi AV-03免執照對講機2隻一組', price: 2514, category: 'other', details: '緊急通訊設備，免執照使用', link: 'https://example.com/walkie-talkie' },
+
+            // Water Category
+            { id: 'item-10', name: '蝦皮_MochiGoo防水水壺8L x8個', price: 1172, category: 'water', details: '大容量儲水，輕便可折疊', link: 'https://example.com/mochigoo-water-bag' },
+            { id: 'item-11', name: '蝦皮_防災濾水罐 x2+生存口嚼片(24顆裝) x2', price: 2361, category: 'water', details: '淨化水源，提供緊急能量', link: 'https://example.com/water-filter-kit' },
+            { id: 'item-12', name: 'P&G防災濾水粉 x2份', price: 1528, category: 'water', details: '快速淨化飲用水', link: '' },
+            { id: 'item-13', name: '蝦皮_生命吸管(810) x3隻', price: 2430, category: 'water', details: '個人濾水器，直接飲用安全水', link: 'https://example.com/lifestraw-810' },
+            { id: 'item-14', name: '蝦皮_KATADYN過濾孢囊(30顆裝) x2', price: 1275, category: 'water', details: '高效濾水片，適用於野外水源', link: '' },
+            { id: 'item-15', name: '蝦皮_WaterBOB浴缸儲水袋*1', price: 2200, category: 'water', details: '大容量應急儲水袋，利用浴缸空間', link: '' },
+            { id: 'item-16', name: '蝦皮_LifeStrawPeak生命吸管*1', price: 1200, category: 'water', details: '高效個人濾水器，輕巧便攜', link: '' },
+
+            // Medical Category
+            { id: 'item-17', name: '藥局_抗生素軟膏', price: 180, category: 'medical', details: '外傷感染預防與治療', link: '' },
+            { id: 'item-18', name: '杏一_藥品一批', price: 883, category: 'medical', details: '常用藥品與急救用品組合', link: '' },
+            { id: 'item-19', name: '美泰德_藥品一批', price: 497, category: 'medical', details: '常用藥品與急救用品組合', link: '' },
+
+            // Food Category
+            { id: 'item-20', name: '蝦皮_POW-R1能量磚(250g) x16份', price: 4480, category: 'food', details: '高能量壓縮餅乾，提供持久飽足感', link: 'https://example.com/pow-r1-16' },
+            { id: 'item-21', name: '蝦皮_POW-R1能量磚(250g) x4份', price: 1120, category: 'food', details: '高能量壓縮餅乾，提供持久飽足感', link: '' },
+            { id: 'item-22', name: '蝦皮_生存口嚼片(24顆裝) x2', price: 1122, category: 'food', details: '緊急能量補充，快速提供熱量', link: '' },
+            { id: 'item-23', name: '蝦皮_NRG-5戰備口糧*1', price: 890, category: 'food', details: '長期儲存口糧，營養均衡', link: '' },
+
+            // Fuel/Energy Category
+            { id: 'item-24', name: '蝦皮_電池', price: 807, category: 'fuel', details: '應急電源，多種尺寸備用', link: 'https://example.com/batteries' },
+            { id: 'item-25', name: '蝦皮_CampMaid固體燃料塊(12顆裝) x5 +鈦合金湯匙', price: 744, category: 'fuel', details: '輕便燃料，用於加熱食物或水', link: 'https://example.com/campmaid-fuel' },
+            { id: 'item-26', name: '蝦皮_戰術電弧點火手電筒*2', price: 1580, category: 'fuel', details: '多功能點火與照明工具', link: 'https://example.com/tactical-flashlight' },
+        ];
+
+        // Function to get saved state from Local Storage
+        function getSavedState() {
+            try {
+                const savedState = localStorage.getItem('disasterKitState');
+                return savedState ? JSON.parse(savedState) : {};
+            } catch (e) {
+                console.error("Error loading state from Local Storage:", e);
+                return {};
+            }
+        }
+
+        // Function to save state to Local Storage
+        function saveState(state) {
+            try {
+                localStorage.setItem('disasterKitState', JSON.stringify(state));
+            } catch (e) {
+                console.error("Error saving state to Local Storage:", e);
+            }
+        }
+
+        // Initialize items with saved state
+        let currentItemsState = getSavedState();
+        disasterKitItems.forEach(item => {
+            if (currentItemsState[item.id]) {
+                item.checked = currentItemsState[item.id].checked;
+                item.quantity = currentItemsState[item.id].quantity;
+            } else {
+                item.checked = false; // Default to unchecked
+                item.quantity = 1;    // Default quantity
+            }
+        });
+
+        // Function to render/re-render the item list
+        function renderDisasterKitItems() {
+            const container = document.getElementById('disaster-kit-items-container');
+            container.innerHTML = ''; // Clear existing items
+
+            disasterKitItems.forEach(item => {
+                const isLink = item.link && item.link.length > 0;
+                const itemElement = document.createElement(isLink ? 'a' : 'div'); // Use <a> for links, <div> otherwise
+                if (isLink) {
+                    itemElement.href = item.link;
+                    itemElement.target = '_blank'; // Open in new tab
+                    itemElement.rel = 'noopener noreferrer'; // Security best practice for target="_blank"
+                }
+
+                itemElement.className = `item-card ${isLink ? 'has-link' : 'no-link'} category-${item.category} ${item.checked ? 'checked' : ''}`;
+                itemElement.setAttribute('data-id', item.id); // Store item ID for easy lookup
+
+                itemElement.innerHTML = `
+                    <div class="flex justify-between w-full items-center">
+                        <strong class="text-gray-900">${item.name}</strong>
+                        <span class="text-red-500 font-semibold">-${item.price}</span>
+                    </div>
+                    <div class="tooltip-details">${item.details}</div>
+                    <div class="item-controls">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" class="item-checkbox" ${item.checked ? 'checked' : ''}>
+                            已準備
+                        </label>
+                        <div class="flex items-center gap-1">
+                            <label for="quantity-${item.id}">數量:</label>
+                            <input type="number" id="quantity-${item.id}" class="item-quantity" value="${item.quantity}" min="1">
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(itemElement);
+
+                // Add event listeners for checkbox and quantity input
+                const checkbox = itemElement.querySelector('.item-checkbox');
+                const quantityInput = itemElement.querySelector('.item-quantity');
+
+                checkbox.addEventListener('change', (event) => {
+                    item.checked = event.target.checked;
+                    itemElement.classList.toggle('checked', item.checked);
+                    updateStateAndSummary();
+                });
+
+                quantityInput.addEventListener('change', (event) => {
+                    let newQuantity = parseInt(event.target.value, 10);
+                    if (isNaN(newQuantity) || newQuantity < 1) {
+                        newQuantity = 1; // Ensure quantity is at least 1
+                        event.target.value = 1;
+                    }
+                    item.quantity = newQuantity;
+                    updateStateAndSummary();
+                });
+            });
+            updateSummary(); // Initial summary update after rendering
+        }
+
+        // Function to update the summary section and save state
+        function updateStateAndSummary() {
+            // Update currentItemsState based on disasterKitItems
+            disasterKitItems.forEach(item => {
+                currentItemsState[item.id] = {
+                    checked: item.checked,
+                    quantity: item.quantity
+                };
+            });
+            saveState(currentItemsState); // Save the updated state
+            updateSummary(); // Update the displayed summary
+        }
+
+        // Function to update the progress summary
+        function updateSummary() {
+            const checkedItems = disasterKitItems.filter(item => item.checked);
+            const checkedCount = checkedItems.length;
+            const totalCount = disasterKitItems.length;
+
+            document.getElementById('checkedItemsCount').textContent = checkedCount;
+            document.getElementById('totalItemsCount').textContent = totalCount;
+        }
+
+        // Initial render when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            renderDisasterKitItems();
+        });
+    </script>
 </body>
 </html>
