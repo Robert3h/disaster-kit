@@ -197,6 +197,9 @@
             <p class="text-lg text-blue-700">
                 您已勾選 <span id="checkedItemsCount" class="font-bold text-3xl">0</span> 個品項，總計 <span id="totalItemsCount" class="font-bold text-3xl">0</span> 個。
             </p>
+            <p class="text-lg text-blue-700 mt-2">
+                已勾選品項預估總金額：<span id="totalEstimatedCost" class="font-bold text-3xl text-red-600">NT$ 0</span>
+            </p>
             <p class="text-sm text-blue-600 mt-2">
                 繼續努力，讓您的家庭更安全！
             </p>
@@ -277,7 +280,7 @@
                 ──SpreadSheetWars SP04，航行日誌紀錄完成。──
             </p>
             <p class="footer-text mt-4">
-                🔁 若您覺得這篇內容對您或您的家人有所幫助，歡迎分享、轉貼或重製。
+                � 若您覺得這篇內容對您或您的家人有所幫助，歡迎分享、轉貼或重製。
             </p>
             <p class="footer-text">
                 🧩 國家的韌性，從每個家庭的準備開始。
@@ -298,41 +301,42 @@
         // Define the disaster kit items data
         // 為了方便管理和互動，將品項資料定義為 JavaScript 物件陣列
         const disasterKitItems = [
-            // Other Category
-            { id: 'item-01', name: '黑熊學院 避難防災用品', price: 14530, category: 'other', details: '提供防災知識與實用課程', link: '' },
-            { id: 'item-02', name: '晴讀_京品源避難防災用品', price: 5589, category: 'other', details: '綜合性防災用品供應商', link: '' },
-            { id: 'item-03', name: '蝦皮_防煙頭罩 x3', price: 1100, category: 'other', details: '火災逃生用，保護呼吸道', link: 'https://example.com/smoke-hood' },
-            { id: 'item-04', name: '蝦皮_簡易廁所50次', price: 975, category: 'other', details: '應急衛生用品，方便處理排泄物', link: '' },
-            { id: 'item-05', name: '蝦皮_ADISI防水雨披+睡袋', price: 1380, category: 'other', details: '應急保暖與防水，輕便易攜', link: '' },
-            { id: 'item-06', name: '蝦皮_簡易尿袋*2', price: 157, category: 'other', details: '應急衛生用品，方便使用', link: '' },
-            { id: 'item-07', name: '京品源_加購防災用品+運費120', price: 1760, category: 'other', details: '防災用品補充與運費', link: '' },
-            { id: 'item-08', name: '蝦皮_鈦金屬筷子(560)+叉匙(465)-折扣(263)', price: 762, category: 'other', details: '輕量耐用，戶外用餐工具', link: 'https://example.com/titanium-cutlery' },
-            { id: 'item-09', name: '蝦皮_ADi AV-03免執照對講機2隻一組', price: 2514, category: 'other', details: '緊急通訊設備，免執照使用', link: 'https://example.com/walkie-talkie' },
+            // 飲水相關 (Water Category)
+            { id: 'item-01', name: 'POW-R1能量磚(250g) x16份', price: 4480, category: 'food', details: '比利時 POW-R1 能量磚 x16份。可直接食用或加水沖泡。', link: 'http://robert3h.github.io/disaster-kit/' },
+            { id: 'item-03', name: '日本KOKUYO防災濾水器', price: 1100, category: 'water', details: '日本 KOKUYO 防災濾水器', link: 'http://robert3h.github.io/disaster-kit/' },
+            { id: 'item-05', name: '日本MochiGoo防水水壺8L x8個', price: 1172, category: 'water', details: '日本 MochiGoo 防水水壺 8L x8個', link: 'http://robert3h.github.io/disaster-kit/' },
+            { id: 'item-06', name: '美國Portable Aqua淨水劑(12顆/20升用)', price: 588, category: 'water', details: '美國 Portable Aqua 淨水劑 (12顆/20升用)', link: 'http://robert3h.github.io/disaster-kit/' },
+            { id: 'item-07', name: '美國Sawyer Mini濾水器', price: 2528, category: 'water', details: '美國 Sawyer Mini 濾水器', link: 'http://robert3h.github.io/disaster-kit/' },
+            { id: 'item-08', name: '美國LifeStraw濾水器', price: 1580, category: 'water', details: '美國 LifeStraw 濾水器', link: 'http://robert3h.github.io/disaster-kit/' },
+            { id: 'item-09', name: '美國Grayl過濾水壺', price: 1120, category: 'water', details: '美國 Grayl 過濾水壺', link: 'http://robert3h.github.io/disaster-kit/' },
+            { id: 'item-12', name: '美國LifeStrawPeak生命吸管', price: 2430, category: 'water', details: '美國 LifeStraw Peak 生命吸管', link: 'http://robert3h.github.io/disaster-kit/' },
+            { id: 'item-13', name: '台灣ADiS戶外淨水器+ADiS迷你濾水器', price: 1380, category: 'water', details: '台灣 ADiS 戶外淨水器 + ADiS 迷你濾水器', link: 'http://robert3h.github.io/disaster-kit/' },
+            { id: 'item-17', name: '美國KATADYN過濾孢囊(30顆裝)', price: 1275, category: 'water', details: '美國 KATADYN 過濾孢囊 (30顆裝)', link: 'http://robert3h.github.io/disaster-kit/' },
+            { id: 'item-19', name: '美國Sawyer Mini濾水器', price: 1122, category: 'water', details: '美國 Sawyer Mini 濾水器', link: 'http://robert3h.github.io/disaster-kit/' },
+            { id: 'item-20', name: '美國WaterBOB浴缸儲水袋', price: 2200, category: 'water', details: '美國 WaterBOB 浴缸儲水袋', link: 'http://robert3h.github.io/disaster-kit/' },
+            { id: 'item-22', name: '美國LifeStrawPeak生命吸管', price: 1200, category: 'water', details: '美國 LifeStrawPeak 生命吸管', link: 'http://robert3h.github.io/disaster-kit/' },
+            { id: 'item-25', name: '台灣ADiS防災濾水器+ADiS迷你濾水器', price: 1760, category: 'water', details: '台灣 ADiS 防災濾水器 + ADiS 迷你濾水器', link: 'http://robert3h.github.io/disaster-kit/' },
 
-            // Water Category
-            { id: 'item-10', name: '蝦皮_MochiGoo防水水壺8L x8個', price: 1172, category: 'water', details: '大容量儲水，輕便可折疊', link: 'https://example.com/mochigoo-water-bag' },
-            { id: 'item-11', name: '蝦皮_防災濾水罐 x2+生存口嚼片(24顆裝) x2', price: 2361, category: 'water', details: '淨化水源，提供緊急能量', link: 'https://example.com/water-filter-kit' },
-            { id: 'item-12', name: 'P&G防災濾水粉 x2份', price: 1528, category: 'water', details: '快速淨化飲用水', link: '' },
-            { id: 'item-13', name: '蝦皮_生命吸管(810) x3隻', price: 2430, category: 'water', details: '個人濾水器，直接飲用安全水', link: 'https://example.com/lifestraw-810' },
-            { id: 'item-14', name: '蝦皮_KATADYN過濾孢囊(30顆裝) x2', price: 1275, category: 'water', details: '高效濾水片，適用於野外水源', link: '' },
-            { id: 'item-15', name: '蝦皮_WaterBOB浴缸儲水袋*1', price: 2200, category: 'water', details: '大容量應急儲水袋，利用浴缸空間', link: '' },
-            { id: 'item-16', name: '蝦皮_LifeStrawPeak生命吸管*1', price: 1200, category: 'water', details: '高效個人濾水器，輕巧便攜', link: '' },
+            // 醫療衛生 (Medical Category)
+            { id: 'item-02', name: '日本SATAKE乾燥飯', price: 5589, category: 'medical', details: '日本 SATAKE 驅蚊貼', link: 'http://robert3h.github.io/disaster-kit/' },
+            { id: 'item-10', name: '常用抗生素軟膏', price: 975, category: 'medical', details: '常用抗生素軟膏', link: 'http://robert3h.github.io/disaster-kit/' },
+            { id: 'item-11', name: '台灣ADiS防水雨披+睡袋', price: 180, category: 'medical', details: '日本 ADiS 防水雨披 + 睡袋', link: 'http://robert3h.github.io/disaster-kit/' },
+            { id: 'item-14', name: '杏一藥品', price: 883, category: 'medical', details: '杏一藥品', link: 'http://robert3h.github.io/disaster-kit/' },
+            { id: 'item-15', name: '美泰德藥品', price: 497, category: 'medical', details: '美泰德藥品', link: 'http://robert3h.github.io/disaster-kit/' },
+            { id: 'item-16', name: '簡易尿袋(2個)', price: 157, category: 'medical', details: '簡易尿袋 (2個)', link: 'http://robert3h.github.io/disaster-kit/' },
 
-            // Medical Category
-            { id: 'item-17', name: '藥局_抗生素軟膏', price: 180, category: 'medical', details: '外傷感染預防與治療', link: '' },
-            { id: 'item-18', name: '杏一_藥品一批', price: 883, category: 'medical', details: '常用藥品與急救用品組合', link: '' },
-            { id: 'item-19', name: '美泰德_藥品一批', price: 497, category: 'medical', details: '常用藥品與急救用品組合', link: '' },
+            // 飲食相關 (Food Category)
+            { id: 'item-23', name: '美國NRG-5戰備口糧', price: 890, category: 'food', details: '美國 NRG-5 戰備口糧', link: 'http://robert3h.github.io/disaster-kit/' },
+            { id: 'item-24', name: '德國POW-R1能量磚(250g) x4份', price: 1110, category: 'food', details: '日本 POW-R1 能量磚 (250g) x4份', link: 'http://robert3h.github.io/disaster-kit/' },
 
-            // Food Category
-            { id: 'item-20', name: '蝦皮_POW-R1能量磚(250g) x16份', price: 4480, category: 'food', details: '高能量壓縮餅乾，提供持久飽足感', link: 'https://example.com/pow-r1-16' },
-            { id: 'item-21', name: '蝦皮_POW-R1能量磚(250g) x4份', price: 1120, category: 'food', details: '高能量壓縮餅乾，提供持久飽足感', link: '' },
-            { id: 'item-22', name: '蝦皮_生存口嚼片(24顆裝) x2', price: 1122, category: 'food', details: '緊急能量補充，快速提供熱量', link: '' },
-            { id: 'item-23', name: '蝦皮_NRG-5戰備口糧*1', price: 890, category: 'food', details: '長期儲存口糧，營養均衡', link: '' },
+            // 能源燃料 (Fuel Category)
+            { id: 'item-04', name: '日本Panasonic EVOLTA鈦元素鹼性電池', price: 807, category: 'fuel', details: 'EVAPORAMA EVOLTA 可攜帶型電池', link: 'http://robert3h.github.io/disaster-kit/' },
+            { id: 'item-18', name: '美國CampMaid固體燃料塊(12顆裝) x5 +美國MontBell鈦合金湯匙', price: 744, category: 'fuel', details: '美國 CampMaid 固體燃料塊 (12顆裝) x5 + 鈦合金湯匙', link: 'http://robert3h.github.io/disaster-kit/' },
+            { id: 'item-21', name: '美國戰術電弧點火手電筒', price: 1580, category: 'fuel', details: '美國 戰術電弧點火手電筒', link: 'http://robert3h.github.io/disaster-kit/' },
 
-            // Fuel/Energy Category
-            { id: 'item-24', name: '蝦皮_電池', price: 807, category: 'fuel', details: '應急電源，多種尺寸備用', link: 'https://example.com/batteries' },
-            { id: 'item-25', name: '蝦皮_CampMaid固體燃料塊(12顆裝) x5 +鈦合金湯匙', price: 744, category: 'fuel', details: '輕便燃料，用於加熱食物或水', link: 'https://example.com/campmaid-fuel' },
-            { id: 'item-26', name: '蝦皮_戰術電弧點火手電筒*2', price: 1580, category: 'fuel', details: '多功能點火與照明工具', link: 'https://example.com/tactical-flashlight' },
+            // 其他 (Other Category)
+            { id: 'item-26', name: '中國Keith鈦金屬筷子(560)+叉匙(465)-折扣(263)', price: 762, category: 'other', details: '中國 Keith 鈦金屬筷子 (560) + 叉匙 (465) - 折扣 (263)', link: 'http://robert3h.github.io/disaster-kit/' },
+            { id: 'item-27', name: '台灣ADi AV-03免執照對講機2隻一組', price: 2514, category: 'other', details: '台灣 ADi AV-03 免執照對講機 2隻一組', link: 'http://robert3h.github.io/disaster-kit/' },
         ];
 
         // Function to get saved state from Local Storage
@@ -387,7 +391,7 @@
                 itemElement.innerHTML = `
                     <div class="flex justify-between w-full items-center">
                         <strong class="text-gray-900">${item.name}</strong>
-                        <span class="text-red-500 font-semibold">-${item.price}</span>
+                        <span class="text-red-500 font-semibold">-${item.price.toLocaleString('zh-TW')}</span>
                     </div>
                     <div class="tooltip-details">${item.details}</div>
                     <div class="item-controls">
@@ -445,9 +449,15 @@
             const checkedItems = disasterKitItems.filter(item => item.checked);
             const checkedCount = checkedItems.length;
             const totalCount = disasterKitItems.length;
+            
+            let totalEstimatedCost = 0;
+            checkedItems.forEach(item => {
+                totalEstimatedCost += item.price * item.quantity;
+            });
 
             document.getElementById('checkedItemsCount').textContent = checkedCount;
             document.getElementById('totalItemsCount').textContent = totalCount;
+            document.getElementById('totalEstimatedCost').textContent = `NT$ ${totalEstimatedCost.toLocaleString('zh-TW')}`; // Format with NT$ and comma
         }
 
         // Initial render when the page loads
