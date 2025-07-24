@@ -6,6 +6,13 @@
     <title>✨ SP04 Spreadsheet Wars Special Piece IV：我不想等飛機真的下墜時，才開始去搶降落傘！</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- jsPDF and html2canvas for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Chart.js for Pie Chart -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
         /* Custom font for better readability */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -63,6 +70,7 @@
             text-decoration: none; /* Remove underline for links */
             color: inherit; /* Inherit text color for links */
             transition: border-width 0.2s ease-in-out, background-color 0.2s ease-in-out, transform 0.2s ease-in-out; /* Smooth transitions */
+            cursor: pointer; /* Indicate clickable */
         }
         .item-card:hover {
             transform: translateY(-3px); /* Slight lift effect on hover */
@@ -76,34 +84,25 @@
             border-width: 3px; /* Thick border */
         }
 
-        /* Color categories */
-        .category-water {
-            background-color: #e0f2fe; /* light blue */
-            border-color: #90cdf4; /* blue-300 */
-        }
-        .category-medical {
-            background-color: #fee2e2; /* light red */
-            border-color: #fca5a5; /* red-300 */
-        }
-        .category-food {
-            background-color: #fffde7; /* light yellow */
-            border-color: #fcd34d; /* yellow-300 */
-        }
-        .category-fuel {
-            background-color: #fff7ed; /* light orange */
-            border-color: #fdba74; /* orange-300 */
-        }
-        .category-other {
-            background-color: #f3f4f6; /* light gray */
-            border-color: #d1d5db; /* gray-300 */
-        }
+        /* Category specific colors (for item cards) */
+        .category-濾水與儲水 { background-color: #e0f2fe; border-color: #90cdf4; } /* light blue */
+        .category-長效期糧食 { background-color: #fffde7; border-color: #fcd34d; } /* light yellow */
+        .category-衛生與醫療 { background-color: #fee2e2; border-color: #fca5a5; } /* light red */
+        .category-保暖與衣 { background-color: #e6fffa; border-color: #81e6d9; } /* light teal */
+        .category-能源與燃料 { background-color: #fff7ed; border-color: #fdba74; } /* light orange */
+        .category-通訊 { background-color: #ebf8ff; border-color: #63b3ed; } /* light sky blue */
+        .category-防火逃生 { background-color: #ffebe6; border-color: #feb2b2; } /* light coral */
+        .category-基礎綜合 { background-color: #f3f4f6; border-color: #d1d5db; } /* light gray */
+        .category-餐具 { background-color: #f0f4f8; border-color: #a0aec0; } /* light blue-gray */
+        .category-搜尋中 { background-color: #f7fafc; border-color: #e2e8f0; } /* very light gray */
+
 
         /* Tooltip styles */
         .item-card .tooltip-details {
             visibility: hidden;
             background-color: rgba(0, 0, 0, 0.8);
             color: #fff;
-            text-align: center;
+            text-align: left; /* Align text to left inside tooltip */
             border-radius: 0.375rem; /* rounded-md */
             padding: 0.5rem 0.75rem;
             position: absolute;
@@ -113,7 +112,9 @@
             transform: translateX(-50%) translateY(-0.5rem); /* Adjust position slightly above */
             opacity: 0;
             transition: opacity 0.3s, transform 0.3s;
-            white-space: nowrap; /* Prevent text wrapping */
+            white-space: normal; /* Allow text wrapping */
+            min-width: 200px; /* Ensure tooltip is wide enough */
+            max-width: 300px;
             pointer-events: none; /* Allow clicks through tooltip */
         }
         .item-card:hover .tooltip-details {
@@ -131,14 +132,41 @@
             border-style: solid;
             border-color: rgba(0, 0, 0, 0.8) transparent transparent transparent;
         }
+        .tooltip-details ul {
+            list-style: none; /* Remove default list bullets */
+            padding: 0;
+            margin: 0;
+        }
+        .tooltip-details li {
+            margin-bottom: 0.25rem;
+        }
+        .tooltip-details li:last-child {
+            margin-bottom: 0;
+        }
+
 
         /* Text colors inside item card */
         .item-card strong {
             color: #1f2937; /* Darker text for item name */
+            text-align: left; /* Align item name to left */
+            width: 100%; /* Take full width */
         }
-        .item-card span {
+        .item-card .item-price-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            width: 100%;
+            margin-top: 0.25rem;
+        }
+        .item-card .item-price {
             color: #ef4444; /* Red for cost */
             font-weight: 500;
+            text-align: right; /* Align price to right */
+        }
+        .item-card .shelf-life {
+            font-size: 0.8rem;
+            color: #6b7280;
+            text-align: right; /* Align shelf life to right */
         }
         .footer-text {
             font-size: 1rem;
@@ -177,6 +205,131 @@
             background-color: #f0fdf4; /* Light green for checked items */
             border-color: #86efac; /* Green border for checked items */
         }
+        /* Part A - 需求8: Item card colors/borders */
+        /* If not checked and no link, apply specific light gray/red */
+        .item-card.no-link:not(.checked) {
+            background-color: #f9fafb; /* 淺白灰 */
+            border-color: #fca5a5; /* 淡紅色 */
+            border-width: 1px; /* Ensure thin border */
+        }
+        /* If not checked and has link, apply specific white/blue */
+        .item-card.has-link:not(.checked) {
+            background-color: #ffffff; /* Default white for clarity */
+            border-color: #63b3ed; /* A default blue for links when not checked */
+            border-width: 3px; /* Ensure thick border */
+        }
+        /* Checked state overrides all */
+        .item-card.checked {
+            opacity: 1; /* Full visibility for checked items */
+            background-color: #f0fdf4; /* Light green */
+            border-color: #34d399; /* Deeper green */
+            border-width: 3px; /* Ensure thick border when checked */
+        }
+
+
+        /* Category Summary Cards */
+        .category-summary-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        .category-summary-card {
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            padding: 1.25rem;
+            position: relative;
+            border-left: 5px solid; /* For category color */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .category-summary-card .emoji {
+            font-size: 2rem;
+            position: absolute;
+            top: 0.75rem;
+            left: 0.75rem;
+            opacity: 0.7;
+        }
+        .category-summary-card h4 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+            padding-left: 2.5rem; /* Space for emoji */
+        }
+        .category-summary-card .total-amount {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ef4444;
+            text-align: right;
+            margin-top: 0.75rem;
+        }
+        .category-summary-card.category-濾水與儲水 { border-color: #3b82f6; } /* blue-500 */
+        .category-summary-card.category-長效期糧食 { border-color: #f59e0b; } /* amber-500 */
+        .category-summary-card.category-衛生與醫療 { border-color: #ef4444; } /* red-500 */
+        .category-summary-card.category-保暖與衣 { border-color: #10b981; } /* emerald-500 */
+        .category-summary-card.category-能源與燃料 { border-color: #f97316; } /* orange-500 */
+        .category-summary-card.category-通訊 { border-color: #0ea5e9; } /* sky-500 */
+        .category-summary-card.category-防火逃生 { border-color: #dc2626; } /* red-600 */
+        .category-summary-card.category-基礎綜合 { border-color: #6b7280; } /* gray-500 */
+        .category-summary-card.category-餐具 { border-color: #4b5563; } /* gray-700 */
+        .category-summary-card.category-搜尋中 { border-color: #9ca3af; } /* gray-400 */
+
+        /* Floating action buttons container */
+        .float-buttons {
+            position: fixed;
+            bottom: 20px;
+            right: 30px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 10px; /* Space between buttons */
+            align-items: center; /* Center items horizontally */
+        }
+
+        .float-button {
+            border: none;
+            outline: none;
+            background-color: #4f46e5; /* Purple background */
+            color: white;
+            cursor: pointer;
+            padding: 15px;
+            border-radius: 50%; /* Circular shape */
+            font-size: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s, transform 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 50px; /* Fixed width for circular button */
+            height: 50px; /* Fixed height for circular button */
+        }
+
+        .float-button:hover {
+            background-color: #6366f1;
+            transform: translateY(-2px);
+        }
+
+        .float-button-label {
+            color: #4f46e5; /* Text color matching button */
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-align: center;
+            width: 60px; /* Ensure label fits below button */
+        }
+
+        /* Chart container styles */
+        .chart-container {
+            width: 100%;
+            max-width: 600px; /* Max width for the chart */
+            margin: 2rem auto; /* Center the chart */
+            padding: 1rem;
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -193,7 +346,7 @@
 
         <!-- Progress Summary Section -->
         <section class="card mb-8 p-6 bg-blue-50 border-l-4 border-blue-400">
-            <h2 class="text-2xl font-semibold text-blue-800 mb-4">我的防災包進度</h2>
+            <h2 class="text-2xl font-semibold text-blue-800 mb-4">我的家庭防災包進度</h2>
             <p class="text-lg text-blue-700">
                 您已勾選 <span id="checkedItemsCount" class="font-bold text-3xl">0</span> 個品項，總計 <span id="totalItemsCount" class="font-bold text-3xl">0</span> 個。
             </p>
@@ -201,8 +354,56 @@
                 已勾選品項預估總金額：<span id="totalEstimatedCost" class="font-bold text-3xl text-red-600">NT$ 0</span>
             </p>
             <p class="text-sm text-blue-600 mt-2">
-                繼續努力，讓您的家庭更安全！
+                繼續努力，一起讓您的家庭更安全！
             </p>
+        </section>
+
+        <!-- Quantity Calculation Section (Part C - 需求1) -->
+        <section class="card mb-8 p-6 bg-purple-50 border-l-4 border-purple-400">
+            <h2 class="text-2xl font-semibold text-purple-800 mb-4">依人數與天數預估數量</h2>
+            <p class="text-sm text-purple-700 mb-4">
+                請輸入家庭成員人數與預估儲備天數，系統將自動計算「濾水與儲水」及「長效期糧食」的建議數量。
+                <br>
+                <span class="font-bold">注意：</span>其他類別品項數量需手動調整。
+            </p>
+            <div class="flex flex-wrap items-center gap-4 mb-4">
+                <div class="flex flex-col">
+                    <label for="adults" class="text-gray-700 font-medium mb-1"><i class="fas fa-user mr-2"></i>大人人數:</label>
+                    <input type="number" id="adults" value="2" min="0" class="w-24 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+                </div>
+                <div class="flex flex-col">
+                    <label for="children" class="text-gray-700 font-medium mb-1"><i class="fas fa-child mr-2"></i>小孩人數:</label>
+                    <input type="number" id="children" value="0" min="0" class="w-24 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+                </div>
+                <div class="flex flex-col">
+                    <label for="days" class="text-gray-700 font-medium mb-1"><i class="fas fa-calendar-alt mr-2"></i>預估儲備天數:</label>
+                    <input type="number" id="days" value="7" min="1" class="w-24 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+                </div>
+                <button id="calculateQuantitiesBtn" class="mt-auto px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition duration-150 ease-in-out">
+                    計算建議數量
+                </button>
+                <button id="checkAllBtn" class="mt-auto px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition duration-150 ease-in-out">
+                    快速全部勾選
+                </button>
+                <button id="uncheckAllBtn" class="mt-auto px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition duration-150 ease-in-out">
+                    快速全部取消
+                </button>
+            </div>
+            <p class="text-xs text-gray-500">
+                預設：每人每天水 3 公升，每人每天糧食 2 份。
+            </p>
+        </section>
+
+        <!-- Category Summary Section -->
+        <section class="card mb-8">
+            <h2 class="section-title">總金額與各類別金額小計</h2>
+            <div id="category-summary-container" class="category-summary-list">
+                <!-- Category summary cards will be generated here -->
+            </div>
+            <!-- Pie Chart for Category Totals -->
+            <div class="chart-container">
+                <canvas id="categoryPieChart"></canvas>
+            </div>
         </section>
 
         <!-- Introduction Section -->
@@ -280,7 +481,7 @@
                 ──SpreadSheetWars SP04，航行日誌紀錄完成。──
             </p>
             <p class="footer-text mt-4">
-                � 若您覺得這篇內容對您或您的家人有所幫助，歡迎分享、轉貼或重製。
+                🔁 若您覺得這篇內容對您或您的家人有所幫助，歡迎分享、轉貼或重製。
             </p>
             <p class="footer-text">
                 🧩 國家的韌性，從每個家庭的準備開始。
@@ -297,47 +498,161 @@
         </footer>
     </div>
 
+    <!-- Floating action buttons container -->
+    <div class="float-buttons">
+        <!-- Generate PDF Button (Part C - 需求5) -->
+        <div class="flex flex-col items-center">
+            <button id="generatePdfBtn" class="float-button" title="產生PDF">
+                <i class="fas fa-file-pdf"></i>
+            </button>
+            <span class="float-button-label">產生PDF</span>
+        </div>
+
+        <!-- Generate Log File Button (Part C - 需求4) -->
+        <div class="flex flex-col items-center">
+            <button id="generateLogBtn" class="float-button" title="產生紀錄檔">
+                <i class="fas fa-save"></i>
+            </button>
+            <span class="float-button-label">產生紀錄檔</span>
+        </div>
+
+        <!-- Load Log File Button (Part C - 需求4 - Load) -->
+        <div class="flex flex-col items-center">
+            <button id="loadLogBtn" class="float-button" title="載入紀錄檔">
+                <i class="fas fa-upload"></i>
+            </button>
+            <span class="float-button-label">載入紀錄檔</span>
+            <input type="file" id="loadLogInput" accept=".json" style="display: none;">
+        </div>
+
+        <!-- Scroll to Top Button (Part C - 需求3) -->
+        <div class="flex flex-col items-center">
+            <button id="scrollToTopBtn" class="float-button" title="回到頂端">
+                <i class="fas fa-arrow-up"></i>
+            </button>
+            <span class="float-button-label">回到頂端</span>
+        </div>
+    </div>
+
     <script>
-        // Define the disaster kit items data
-        // 為了方便管理和互動，將品項資料定義為 JavaScript 物件陣列
-        const disasterKitItems = [
-            // 飲水相關 (Water Category)
-            { id: 'item-01', name: 'POW-R1能量磚(250g) x16份', price: 4480, category: 'food', details: '比利時 POW-R1 能量磚 x16份。可直接食用或加水沖泡。', link: 'http://robert3h.github.io/disaster-kit/' },
-            { id: 'item-03', name: '日本KOKUYO防災濾水器', price: 1100, category: 'water', details: '日本 KOKUYO 防災濾水器', link: 'http://robert3h.github.io/disaster-kit/' },
-            { id: 'item-05', name: '日本MochiGoo防水水壺8L x8個', price: 1172, category: 'water', details: '日本 MochiGoo 防水水壺 8L x8個', link: 'http://robert3h.github.io/disaster-kit/' },
-            { id: 'item-06', name: '美國Portable Aqua淨水劑(12顆/20升用)', price: 588, category: 'water', details: '美國 Portable Aqua 淨水劑 (12顆/20升用)', link: 'http://robert3h.github.io/disaster-kit/' },
-            { id: 'item-07', name: '美國Sawyer Mini濾水器', price: 2528, category: 'water', details: '美國 Sawyer Mini 濾水器', link: 'http://robert3h.github.io/disaster-kit/' },
-            { id: 'item-08', name: '美國LifeStraw濾水器', price: 1580, category: 'water', details: '美國 LifeStraw 濾水器', link: 'http://robert3h.github.io/disaster-kit/' },
-            { id: 'item-09', name: '美國Grayl過濾水壺', price: 1120, category: 'water', details: '美國 Grayl 過濾水壺', link: 'http://robert3h.github.io/disaster-kit/' },
-            { id: 'item-12', name: '美國LifeStrawPeak生命吸管', price: 2430, category: 'water', details: '美國 LifeStraw Peak 生命吸管', link: 'http://robert3h.github.io/disaster-kit/' },
-            { id: 'item-13', name: '台灣ADiS戶外淨水器+ADiS迷你濾水器', price: 1380, category: 'water', details: '台灣 ADiS 戶外淨水器 + ADiS 迷你濾水器', link: 'http://robert3h.github.io/disaster-kit/' },
-            { id: 'item-17', name: '美國KATADYN過濾孢囊(30顆裝)', price: 1275, category: 'water', details: '美國 KATADYN 過濾孢囊 (30顆裝)', link: 'http://robert3h.github.io/disaster-kit/' },
-            { id: 'item-19', name: '美國Sawyer Mini濾水器', price: 1122, category: 'water', details: '美國 Sawyer Mini 濾水器', link: 'http://robert3h.github.io/disaster-kit/' },
-            { id: 'item-20', name: '美國WaterBOB浴缸儲水袋', price: 2200, category: 'water', details: '美國 WaterBOB 浴缸儲水袋', link: 'http://robert3h.github.io/disaster-kit/' },
-            { id: 'item-22', name: '美國LifeStrawPeak生命吸管', price: 1200, category: 'water', details: '美國 LifeStrawPeak 生命吸管', link: 'http://robert3h.github.io/disaster-kit/' },
-            { id: 'item-25', name: '台灣ADiS防災濾水器+ADiS迷你濾水器', price: 1760, category: 'water', details: '台灣 ADiS 防災濾水器 + ADiS 迷你濾水器', link: 'http://robert3h.github.io/disaster-kit/' },
+        // Define the disaster kit items data from the provided CSV
+        // 將 CSV 數據解析為 JavaScript 物件陣列
+        const csvData = `,"購買
+順序","記帳
+消費日",已購買,已收納,優先順序,分類,購買通路_商家 ,商品名稱,保存年限,備註,數量,單位,"折扣與折抵後金額
+(部分有含運)","平均單價",購買連結,目前總花費
+,6,2025/6/20,V,V,1,濾水與儲水,蝦皮,日本MochiGoo PET材質可折疊水壺袋(8公升容量),無保存期限,PET材質水溫建議不超過60攝氏度,8,個,"1,172 ",147 ,https://tw.shp.ee/5nuoRdJ,"55,436 "
+,18,2025/7/5,V,V,1,濾水與儲水,蝦皮,美國KATADYN MICROPUR MP1過濾隱孢蟲藥錠(一盒30顆),5年,每盒30顆，每顆可處理1公升汙水，需要靜置1~4小時,2,盒,"1,275 ",638 ,https://tw.shp.ee/jd5oSQE
+,13,2025/7/1,V,V,1,濾水與儲水,蝦皮_城市綠洲,美國LifeStrawPeak生命吸管可過濾4000公升(平裝版外包裸裝),無期限,品牌信譽高｜過濾效果在非洲等地區經過大量驗證,3,隻,"2,430 ",810 ,https://tw.shp.ee/KceBiia
+,23,2025/7/6,V,V,1,濾水與儲水,蝦皮,美國WaterBOB浴缸軟性儲水袋,無期限,最大可儲存約100加侖=378公升,1,袋,2200,2200,https://tw.shp.ee/FfHYWbi
+,19,2025/7/5,V,V,5,能源與燃料,蝦皮,美國CampMaid固體燃料塊(12顆裝) x 5 + 鈦合金湯匙,無期限,推薦搭配可放置固體燃料塊的美國Vargo鈦金屬小爐具,60,顆,744 ,12 ,https://tw.shp.ee/qVHMQgy
+,23,2025/7/6,V,V,5,能源與燃料,蝦皮,美國電弧點火器兼防水LED手電筒,無期限,mini-USB充電口,2,隻,"1,580 ",790 ,https://tw.shp.ee/qVHMQgy
+,5,2025/6/15,V,V,5,能源與燃料,蝦皮_電池哥,日本Panasonic EVOLTA長效鹼性電池,10年,包含：3號AA與4號AAA電池,1,批,807 ,807 ,https://tw.shp.ee/vbbukfA
+,30,2025/12/31,,,5,能源與燃料,搜尋中,"[搜尋中]單晶矽太陽能充電板",無期限,目前搜尋中比較中…將以日本、台灣、歐美國品牌為目標，為了安全性將避開中國品牌與製品,1,片,,0 ,--
+,30,2025/12/31,,,5,能源與燃料,搜尋中,"[搜尋中]磷酸鐵鋰移動電站(LiFePO 4)",無期限,目前搜尋中比較中…將以日本、台灣、歐美國品牌為目標，為了安全性將避開中國品牌與製品,1,座,,0 ,--
+,2,2025/5/1,V,V,2,長效期糧食,蝦皮,美國SurvivalTab生存口嚼片香草口味(一袋24顆),25年,一袋24顆裝，供應2日最低需求｜實測香草口味吃起來像麥芽(好吃),2,袋,1122,561,https://tw.shp.ee/W1LnMkN
+,3,2025/7/6,V,V,2,長效期糧食,蝦皮,美國SurvivalTab生存口嚼片香草口味(一袋24顆),25年,一袋24顆裝，供應2日最低需求｜實測香草口味吃起來像麥芽(好吃),3,袋,1683,561,https://tw.shp.ee/W1LnMkN
+,24,2025/7/6,V,V,2,長效期糧食,蝦皮,美國NRG-5戰備口糧,20年,德國Amazon銷售量最高的防災口糧｜低過敏原料和高能量,1,隻,890 ,890 ,https://tw.shp.ee/FfHYWbi
+,1,2025/5/1,V,V,8,基礎綜合,黑熊學院,避難防災用品(包含：止血帶、防身噴劑兼破窗器、可摺疊水壺含濾嘴、EDC每日攜帶隨身側背包...),軟式水壺2年,止血帶x3、可彎曲水壺x2、濾嘴可過濾1000公升x5、防身噴劑兼破窗器x2,1,批,14530,14530,https://kuma-academy.org/
+,1,2025/5/1,V,V,8,基礎綜合,嘖嘖_京品源,避難防災用品(包含：大型戰術防災包、POW-R1緊急乾糧、太陽能收音機、基本品項詳閱網站…),POW-R1緊急乾糧20年,基本品項詳閱網站,1,批,5589,5589,https://jingpinyuan.tw/product.php
+,10,2025/6/30,V,V,3,衛生與醫療,蝦皮,常用抗生素軟膏(一盒30克),15年,使用於傷口及皮膚感染，軟管設計易於攜帶及使用,1,條,975 ,975 ,https://tw.shp.ee/qVHMQgy
+,11,2025/7/1,V,V,3,衛生與醫療,蝦皮,日本ADiS防水雨披+睡袋,無期限,日本ADiS防水雨披+睡袋，輕量防水，可提供保暖和防潮功能，適合緊急避難時使用,1,個,180 ,180 ,https://tw.shp.ee/qVHMQgy
+,14,2025/7/2,V,V,3,衛生與醫療,蝦皮,杏一藥品,無期限,綜合藥品，應對常見疾病和輕傷，方便攜帶,1,批,883 ,883 ,--
+,15,2025/7/2,V,V,3,衛生與醫療,蝦皮,美泰德藥品,無期限,綜合藥品，應對常見疾病和輕傷，方便攜帶,1,批,497 ,497 ,--
+,16,2025/7/2,V,V,3,衛生與醫療,蝦皮,簡易尿袋(2個),無期限,簡易尿袋，適用於緊急情況下的個人衛生需求，方便處理排泄物,2,包,157 ,79 ,--
+,4,2025/6/1,V,V,7,防火逃生,蝦皮,台灣寧威防煙頭罩,5年,大約耐熱500度,3,片,1100,1100,https://tw.shp.ee/FfHYWbi
+,25,2025/7/6,V,V,6,通訊,蝦皮,ADi AV-03免執照對講機2隻一組,無期限,免執照對講機，方便緊急通訊，兩隻一組,1,組,2514,2514,https://tw.shp.ee/qVHMQgy
+,26,2025/7/6,V,V,9,餐具,蝦皮,中國Kinshi鈦金屬筷子(560)+叉匙(465)-折扣(263),無期限,輕量耐用，戶外用餐工具，方便攜帶,1,組,762 ,762 ,https://tw.shp.ee/qVHMQgy
+`;
 
-            // 醫療衛生 (Medical Category)
-            { id: 'item-02', name: '日本SATAKE乾燥飯', price: 5589, category: 'medical', details: '日本 SATAKE 驅蚊貼', link: 'http://robert3h.github.io/disaster-kit/' },
-            { id: 'item-10', name: '常用抗生素軟膏', price: 975, category: 'medical', details: '常用抗生素軟膏', link: 'http://robert3h.github.io/disaster-kit/' },
-            { id: 'item-11', name: '台灣ADiS防水雨披+睡袋', price: 180, category: 'medical', details: '日本 ADiS 防水雨披 + 睡袋', link: 'http://robert3h.github.io/disaster-kit/' },
-            { id: 'item-14', name: '杏一藥品', price: 883, category: 'medical', details: '杏一藥品', link: 'http://robert3h.github.io/disaster-kit/' },
-            { id: 'item-15', name: '美泰德藥品', price: 497, category: 'medical', details: '美泰德藥品', link: 'http://robert3h.github.io/disaster-kit/' },
-            { id: 'item-16', name: '簡易尿袋(2個)', price: 157, category: 'medical', details: '簡易尿袋 (2個)', link: 'http://robert3h.github.io/disaster-kit/' },
+        // Function to parse CSV data
+        function parseCSV(csvString) {
+            const lines = csvString.trim().split('\n');
+            // BugFix: The CSV data now starts with the header line, so slice(1) to skip it.
+            const dataLines = lines.slice(1);
+            const items = [];
 
-            // 飲食相關 (Food Category)
-            { id: 'item-23', name: '美國NRG-5戰備口糧', price: 890, category: 'food', details: '美國 NRG-5 戰備口糧', link: 'http://robert3h.github.io/disaster-kit/' },
-            { id: 'item-24', name: '德國POW-R1能量磚(250g) x4份', price: 1110, category: 'food', details: '日本 POW-R1 能量磚 (250g) x4份', link: 'http://robert3h.github.io/disaster-kit/' },
+            dataLines.forEach(line => {
+                // Skip empty lines that might result from trailing newlines or malformed CSV
+                if (!line.trim()) {
+                    return;
+                }
 
-            // 能源燃料 (Fuel Category)
-            { id: 'item-04', name: '日本Panasonic EVOLTA鈦元素鹼性電池', price: 807, category: 'fuel', details: 'EVAPORAMA EVOLTA 可攜帶型電池', link: 'http://robert3h.github.io/disaster-kit/' },
-            { id: 'item-18', name: '美國CampMaid固體燃料塊(12顆裝) x5 +美國MontBell鈦合金湯匙', price: 744, category: 'fuel', details: '美國 CampMaid 固體燃料塊 (12顆裝) x5 + 鈦合金湯匙', link: 'http://robert3h.github.io/disaster-kit/' },
-            { id: 'item-21', name: '美國戰術電弧點火手電筒', price: 1580, category: 'fuel', details: '美國 戰術電弧點火手電筒', link: 'http://robert3h.github.io/disaster-kit/' },
+                // Split by comma, but handle potential commas within quoted strings
+                // A simple split(',') is often insufficient for robust CSV parsing if fields contain commas.
+                // For this specific CSV, it seems simple split will work for the relevant columns if we are careful.
+                // Let's use a regex to split by comma, but not if it's inside double quotes.
+                // However, given the current CSV structure, direct splitting and trimming parts is safer.
+                const parts = line.split(',');
 
-            // 其他 (Other Category)
-            { id: 'item-26', name: '中國Keith鈦金屬筷子(560)+叉匙(465)-折扣(263)', price: 762, category: 'other', details: '中國 Keith 鈦金屬筷子 (560) + 叉匙 (465) - 折扣 (263)', link: 'http://robert3h.github.io/disaster-kit/' },
-            { id: 'item-27', name: '台灣ADi AV-03免執照對講機2隻一組', price: 2514, category: 'other', details: '台灣 ADi AV-03 免執照對講機 2隻一組', link: 'http://robert3h.github.io/disaster-kit/' },
-        ];
+                // Clean and parse data based on CSV column index
+                // Note: CSV is 0-indexed, and there's an empty leading column.
+                // So, "購買順序" is index 1, "分類" is index 6, "商品名稱" is index 8, etc.
+                // Added checks (parts[index] || '') to prevent 'undefined' errors
+                const rowIndexNumber = parseInt((parts[1] || '').trim(), 10); // C欄位: 購買順序
+                const category = (parts[6] || '').trim(); // F欄位: 分類
+                const itemName = (parts[8] || '').trim(); // K欄位: 商品名稱
+                const shelfLife = (parts[10] || '').trim(); // L欄位: 保存年限
+                const notes = (parts[11] || '').trim(); // M欄位: 備註
+                // For quantity, ensure it's a number, default to 1 if empty or invalid
+                const quantityInSheet = parseInt((parts[12] || '1').trim(), 10) || 1; // N欄位: 數量
+                // For unitPrice, ensure it's a number, clean non-numeric characters (commas, spaces)
+                const unitPrice = parseFloat((parts[14] || '0').replace(/[^0-9.-]+/g, "")); // Q欄位: 平均單價
+                const purchaseLink = (parts[16] || '').trim(); // R欄位: 購買連結
+
+                // Skip items with invalid price or name
+                if (isNaN(unitPrice) || !itemName) {
+                    return;
+                }
+
+                items.push({
+                    id: `item-${rowIndexNumber}-${items.length}`, // Unique ID for each item
+                    rowIndexNumber: rowIndexNumber,
+                    name: itemName,
+                    price: unitPrice,
+                    category: category,
+                    shelfLife: shelfLife,
+                    notes: notes,
+                    link: purchaseLink,
+                    initialQuantity: quantityInSheet // Store initial quantity from sheet
+                    // unitConversionFactor will be added here later
+                });
+            });
+
+            // Sort items by rowIndexNumber (Part A - 需求3 & Part C - 需求4)
+            items.sort((a, b) => a.rowIndexNumber - b.rowIndexNumber);
+            return items;
+        }
+
+        const disasterKitItems = parseCSV(csvData);
+
+        // Category importance and emojis (Part B - 需求3 & Part D - 需求3)
+        const categoryImportance = {
+            "濾水與儲水": 1,
+            "長效期糧食": 2,
+            "衛生與醫療": 3,
+            "保暖與衣": 4,
+            "能源與燃料": 5,
+            "通訊": 6,
+            "防火逃生": 7,
+            "基礎綜合": 8,
+            "餐具": 9,
+            "搜尋中": 10 // Items still being researched
+        };
+
+        const categoryEmojis = {
+            "濾水與儲水": "💧",
+            "長效期糧食": "🥫",
+            "衛生與醫療": "🩹",
+            "保暖與衣": "🧥",
+            "能源與燃料": "⚡",
+            "通訊": "📞",
+            "防火逃生": "🔥",
+            "基礎綜合": "📦",
+            "餐具": "�",
+            "搜尋中": "🔍"
+        };
+
 
         // Function to get saved state from Local Storage
         function getSavedState() {
@@ -359,7 +674,7 @@
             }
         }
 
-        // Initialize items with saved state
+        // Initialize items with saved state or default values
         let currentItemsState = getSavedState();
         disasterKitItems.forEach(item => {
             if (currentItemsState[item.id]) {
@@ -367,7 +682,7 @@
                 item.quantity = currentItemsState[item.id].quantity;
             } else {
                 item.checked = false; // Default to unchecked
-                item.quantity = 1;    // Default quantity
+                item.quantity = item.initialQuantity || 1; // Use initial quantity from sheet or default to 1
             }
         });
 
@@ -377,7 +692,8 @@
             container.innerHTML = ''; // Clear existing items
 
             disasterKitItems.forEach(item => {
-                const isLink = item.link && item.link.length > 0;
+                // Check if link exists and is not just "--" (Part A - 需求6 & Part C - 需求7)
+                const isLink = item.link && item.link.length > 0 && item.link !== '--';
                 const itemElement = document.createElement(isLink ? 'a' : 'div'); // Use <a> for links, <div> otherwise
                 if (isLink) {
                     itemElement.href = item.link;
@@ -388,12 +704,21 @@
                 itemElement.className = `item-card ${isLink ? 'has-link' : 'no-link'} category-${item.category} ${item.checked ? 'checked' : ''}`;
                 itemElement.setAttribute('data-id', item.id); // Store item ID for easy lookup
 
+                // Construct tooltip details (Part A - 需求5 & Part C - 需求6)
+                let tooltipContent = `<ul>`;
+                tooltipContent += `<li><strong>商品名稱:</strong> ${item.name || 'N/A'}</li>`;
+                tooltipContent += `<li><strong>保存年限: 環境:</strong> ${item.shelfLife || 'N/A'}</li>`; // L欄位
+                // Display "暫時無補充資訊" if notes is empty or "--" (M欄位)
+                tooltipContent += `<li><strong>備註:</strong> ${item.notes && item.notes !== '--' ? item.notes : '暫時無補充資訊'}</li>`;
+                tooltipContent += `</ul>`;
+
                 itemElement.innerHTML = `
-                    <div class="flex justify-between w-full items-center">
-                        <strong class="text-gray-900">${item.name}</strong>
-                        <span class="text-red-500 font-semibold">-${item.price.toLocaleString('zh-TW')}</span>
+                    <strong class="text-gray-900">${item.name}</strong> <!-- Part A - 需求1 & Part C - 需求2 -->
+                    <div class="item-price-info">
+                        <span class="item-price">NT$ ${(item.price * item.quantity).toLocaleString('zh-TW')}</span> <!-- Part A - 需求4 & Part C - 需求5 -->
+                        <span class="shelf-life">${item.shelfLife || '無期限'}</span> <!-- Part A - 需求2 & Part C - 需求3 -->
                     </div>
-                    <div class="tooltip-details">${item.details}</div>
+                    <div class="tooltip-details">${tooltipContent}</div> <!-- Part A - 需求5 & Part C - 需求6 -->
                     <div class="item-controls">
                         <label class="flex items-center gap-2 cursor-pointer">
                             <input type="checkbox" class="item-checkbox" ${item.checked ? 'checked' : ''}>
@@ -425,10 +750,12 @@
                         event.target.value = 1;
                     }
                     item.quantity = newQuantity;
+                    // Update item's displayed total price immediately
+                    itemElement.querySelector('.item-price').textContent = `NT$ ${(item.price * item.quantity).toLocaleString('zh-TW')}`;
                     updateStateAndSummary();
                 });
             });
-            updateSummary(); // Initial summary update after rendering
+            updateStateAndSummary(); // Initial summary update after rendering
         }
 
         // Function to update the summary section and save state
@@ -442,9 +769,11 @@
             });
             saveState(currentItemsState); // Save the updated state
             updateSummary(); // Update the displayed summary
+            renderCategorySummaries(); // Also update category summaries
+            updatePieChart(); // Update the pie chart
         }
 
-        // Function to update the progress summary
+        // Function to update the progress summary (Part B - 需求1 & Part D - 需求1)
         function updateSummary() {
             const checkedItems = disasterKitItems.filter(item => item.checked);
             const checkedCount = checkedItems.length;
@@ -460,9 +789,311 @@
             document.getElementById('totalEstimatedCost').textContent = `NT$ ${totalEstimatedCost.toLocaleString('zh-TW')}`; // Format with NT$ and comma
         }
 
+        // Function to render category summary cards (Part B - 需求2 & 3, Part D - 需求2 & 3)
+        function renderCategorySummaries() {
+            const container = document.getElementById('category-summary-container');
+            container.innerHTML = ''; // Clear existing summaries
+
+            const categoryTotals = {};
+            disasterKitItems.forEach(item => {
+                if (item.checked) {
+                    if (!categoryTotals[item.category]) {
+                        categoryTotals[item.category] = 0;
+                    }
+                    categoryTotals[item.category] += item.price * item.quantity;
+                }
+            });
+
+            // Sort categories by importance (Part B - 需求2 & Part D - 需求2)
+            const sortedCategories = Object.keys(categoryTotals).sort((a, b) => {
+                const importanceA = categoryImportance[a] || 999; // Default high importance for unknown
+                const importanceB = categoryImportance[b] || 999;
+                return importanceA - importanceB;
+            });
+
+            sortedCategories.forEach(categoryName => {
+                const card = document.createElement('div');
+                card.className = `category-summary-card category-${categoryName}`;
+                // Prepend importance number to category name (Part D - 需求2)
+                const displayCategoryName = `${categoryImportance[categoryName] || ''}${categoryName}`;
+                card.innerHTML = `
+                    <span class="emoji">${categoryEmojis[categoryName] || '❓'}</span> <!-- Part B - 需求3 & Part D - 需求3 -->
+                    <h4>${displayCategoryName}</h4>
+                    <div class="total-amount">NT$ ${categoryTotals[categoryName].toLocaleString('zh-TW')}</div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Chart.js instance
+        let categoryPieChartInstance = null;
+
+        // Function to update the pie chart (Part B - 需求2 & Part D - 需求2)
+        function updatePieChart() {
+            const ctx = document.getElementById('categoryPieChart').getContext('2d');
+
+            const categoryData = {};
+            disasterKitItems.forEach(item => {
+                if (item.checked) {
+                    if (!categoryData[item.category]) {
+                        categoryData[item.category] = 0;
+                    }
+                    categoryData[item.category] += item.price * item.quantity;
+                }
+            });
+
+            // Sort categories for chart by amount (descending)
+            const sortedChartCategories = Object.keys(categoryData).sort((a, b) => categoryData[b] - categoryData[a]);
+
+            const labels = sortedChartCategories.map(cat => `${categoryImportance[cat] || ''}${cat}`);
+            const data = sortedChartCategories.map(cat => categoryData[cat]);
+
+            // Generate dynamic colors for the pie chart
+            const backgroundColors = sortedChartCategories.map(cat => {
+                switch(cat) {
+                    case '濾水與儲水': return '#3b82f6'; // blue-500
+                    case '長效期糧食': return '#f59e0b'; // amber-500
+                    case '衛生與醫療': return '#ef4444'; // red-500
+                    case '保暖與衣': return '#10b981'; // emerald-500
+                    case '能源與燃料': return '#f97316'; // orange-500
+                    case '通訊': return '#0ea5e9'; // sky-500
+                    case '防火逃生': return '#dc2626'; // red-600
+                    case '基礎綜合': return '#6b7280'; // gray-500
+                    case '餐具': return '#4b5563'; // gray-700
+                    case '搜尋中': return '#9ca3af'; // gray-400
+                    default: return '#cccccc'; // Fallback
+                }
+            });
+
+            if (categoryPieChartInstance) {
+                categoryPieChartInstance.data.labels = labels;
+                categoryPieChartInstance.data.datasets[0].data = data;
+                categoryPieChartInstance.data.datasets[0].backgroundColor = backgroundColors;
+                categoryPieChartInstance.update();
+            } else {
+                categoryPieChartInstance = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: data,
+                            backgroundColor: backgroundColors,
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                                labels: {
+                                    font: {
+                                        size: 14,
+                                        family: 'Inter'
+                                    }
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: '已勾選品項類別金額分佈',
+                                font: {
+                                    size: 18,
+                                    family: 'Inter'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+
+        // --- Part C - 需求1: 自動帶入基本數值 ---
+        const adultsInput = document.getElementById('adults');
+        const childrenInput = document.getElementById('children');
+        const daysInput = document.getElementById('days');
+        const calculateQuantitiesBtn = document.getElementById('calculateQuantitiesBtn');
+
+        calculateQuantitiesBtn.addEventListener('click', () => {
+            const adults = parseInt(adultsInput.value, 10) || 0;
+            const children = parseInt(childrenInput.value, 10) || 0;
+            const totalPeople = adults + children;
+            const days = parseInt(daysInput.value, 10) || 1;
+
+            // Define consumption rates
+            const waterPerPersonPerDay = 3; // liters
+            const foodUnitsPerPersonPerDay = 2; // units (e.g., rations, meals)
+
+            disasterKitItems.forEach(item => {
+                let newCalculatedQuantity = item.initialQuantity; // Default to initial quantity from sheet
+
+                if (item.category === "濾水與儲水") {
+                    // Assuming 1 unit of water item = 1 liter for simplicity in calculation
+                    // You might need to adjust this logic if one item unit represents more liters
+                    newCalculatedQuantity = Math.ceil((totalPeople * waterPerPersonPerDay * days) / (item.unitConversionFactor || 1));
+                    // Ensure minimum 1 if calculated is 0
+                    if (newCalculatedQuantity < 1) newCalculatedQuantity = 1;
+                } else if (item.category === "長效期糧食") {
+                    // Assuming 1 unit of food item = 1 food unit for simplicity in calculation
+                    // You might need to adjust this logic if one item unit represents more food units
+                    newCalculatedQuantity = Math.ceil((totalPeople * foodUnitsPerPersonPerDay * days) / (item.unitConversionFactor || 1));
+                    // Ensure minimum 1 if calculated is 0
+                    if (newCalculatedQuantity < 1) newCalculatedQuantity = 1;
+                }
+                
+                // Update item's quantity in the data model
+                item.quantity = newCalculatedQuantity;
+                // Update the input field on the page
+                const quantityInput = document.getElementById(`quantity-${item.id}`);
+                if (quantityInput) {
+                    quantityInput.value = newCalculatedQuantity;
+                    // Also update the item's displayed total price immediately
+                    const itemElement = quantityInput.closest('.item-card');
+                    if(itemElement) {
+                        itemElement.querySelector('.item-price').textContent = `NT$ ${(item.price * item.quantity).toLocaleString('zh-TW')}`;
+                    }
+                }
+            });
+            updateStateAndSummary(); // Re-render summaries after quantity calculation
+        });
+
+        // --- Part C - 需求2: 快速全部勾選 ---
+        const checkAllBtn = document.getElementById('checkAllBtn');
+        checkAllBtn.addEventListener('click', () => {
+            disasterKitItems.forEach(item => {
+                item.checked = true; // Set all items to checked
+                const checkbox = document.querySelector(`.item-card[data-id="${item.id}"] .item-checkbox`);
+                const itemElement = checkbox.closest('.item-card');
+                if (checkbox && itemElement) {
+                    checkbox.checked = true;
+                    itemElement.classList.add('checked');
+                }
+            });
+            updateStateAndSummary(); // Update summaries after checking all
+        });
+
+        // --- Part C - 需求2: 快速全部取消 ---
+        const uncheckAllBtn = document.getElementById('uncheckAllBtn');
+        uncheckAllBtn.addEventListener('click', () => {
+            disasterKitItems.forEach(item => {
+                item.checked = false; // Set all items to unchecked
+                const checkbox = document.querySelector(`.item-card[data-id="${item.id}"] .item-checkbox`);
+                const itemElement = checkbox.closest('.item-card');
+                if (checkbox && itemElement) {
+                    checkbox.checked = false;
+                    itemElement.classList.remove('checked');
+                }
+            });
+            updateStateAndSummary(); // Update summaries after unchecking all
+        });
+
+        // --- Part C - 需求3: 快速回到頂端 ---
+        const scrollToTopBtn = document.getElementById("scrollToTopBtn");
+
+        // When the user scrolls down 20px from the top of the document, show the button
+        window.onscroll = function() {
+            const floatButtonsContainer = scrollToTopBtn.parentNode; // Get the parent container
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                floatButtonsContainer.style.display = "flex"; // Show the container for buttons
+            } else {
+                floatButtonsContainer.style.display = "none"; // Hide the container
+            }
+        };
+
+        // When the user clicks on the button, scroll to the top of the document
+        scrollToTopBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' }); // Smooth scroll
+        });
+
+        // --- Part C - 需求4: 產生LOG記錄檔 ---
+        const generateLogBtn = document.getElementById('generateLogBtn');
+        generateLogBtn.addEventListener('click', () => {
+            const logData = disasterKitItems.map(item => ({
+                id: item.id,
+                name: item.name,
+                category: item.category,
+                checked: item.checked,
+                quantity: item.quantity,
+                unitPrice: item.price,
+                totalItemCost: item.price * item.quantity,
+                link: item.link
+            }));
+
+            const jsonString = JSON.stringify(logData, null, 2); // Pretty print JSON
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = '防災包紀錄_' + new Date().toISOString().slice(0,10) + '.json'; // Filename with date
+            document.body.appendChild(a); // Append to body to make it clickable
+            a.click(); // Programmatically click the link to trigger download
+            document.body.removeChild(a); // Clean up
+            URL.revokeObjectURL(url); // Release the object URL
+        });
+
+        // --- Part C - 需求4: 載入紀錄檔 ---
+        const loadLogBtn = document.getElementById('loadLogBtn');
+        const loadLogInput = document.getElementById('loadLogInput');
+
+        loadLogBtn.addEventListener('click', () => {
+            loadLogInput.click(); // Programmatically click the hidden file input
+        });
+
+        loadLogInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) {
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const loadedData = JSON.parse(e.target.result);
+                    // Apply loaded data to currentItemsState and then to disasterKitItems
+                    loadedData.forEach(loadedItem => {
+                        const existingItem = disasterKitItems.find(item => item.id === loadedItem.id);
+                        if (existingItem) {
+                            existingItem.checked = loadedItem.checked;
+                            existingItem.quantity = loadedItem.quantity;
+                        }
+                    });
+                    // Re-render the entire list to reflect loaded state
+                    renderDisasterKitItems();
+                    updateStateAndSummary(); // Update summaries and save to local storage
+                    alert('紀錄檔載入成功！'); // Use a simple alert for now, can be replaced with custom modal
+                } catch (error) {
+                    console.error('載入紀錄檔失敗:', error);
+                    alert('載入紀錄檔失敗，請檢查檔案格式是否正確。'); // Use a simple alert
+                }
+            };
+            reader.readAsText(file);
+        });
+
+
+        // --- Part C - 需求5: 快速產生購物檢核清單PDF ---
+        const generatePdfBtn = document.getElementById('generatePdfBtn');
+        generatePdfBtn.addEventListener('click', () => {
+            const element = document.body; // Target the entire body for PDF generation
+
+            // Options for html2pdf
+            const options = {
+                margin: 10,
+                filename: '防災包檢核清單_' + new Date().toISOString().slice(0,10) + '.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, logging: true, dpi: 192, letterRendering: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' } // orientation: 'landscape' for A4橫向
+            };
+
+            // Use html2pdf to generate and download the PDF
+            html2pdf().set(options).from(element).save();
+        });
+
+
         // Initial render when the page loads
         document.addEventListener('DOMContentLoaded', () => {
             renderDisasterKitItems();
+            renderCategorySummaries();
+            updatePieChart(); // Initial render of the pie chart
         });
     </script>
 </body>
